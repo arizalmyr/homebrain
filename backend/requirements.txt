@@ -1,5 +1,7 @@
-fastapi==0.123.5
-uvicorn==0.38.0
-google-genai==1.52.0
-python-dotenv==1.2.1
-pydantic==2.12.5
+fastapi
+uvicorn
+google-genai
+python-dotenv
+pydantic
+langchain
+langchain-google-genai
