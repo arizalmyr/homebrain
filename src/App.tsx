@@ -143,6 +143,11 @@ function App() {
             </div>
             ))
           )}
+          {isLoading && (
+            <div style={{ opacity: 0.7, fontSize: '0.8rem', marginTop: '0.25rem' }}>
+              Homebrain is thinking…
+            </div>
+          )}
         </div>
 
         {/* Input bar */}
@@ -173,18 +178,20 @@ function App() {
           />
           <button
             type="submit"
+            disabled={isLoading}
             style={{
+              opacity: isLoading ? 0.6 : 1,
+              cursor: isLoading ? 'not-allowed' : 'pointer',
               padding: '0.5rem 0.9rem',
               borderRadius: '0.5rem',
               border: 'none',
               fontWeight: 500,
-              cursor: 'pointer',
               backgroundColor: '#22c55e',
               color: '#022c22',
               fontSize: '0.9rem',
             }}
           >
-            Send
+            {isLoading ? 'Sending...' : 'Send'}
           </button>
         </form>
       </div>
