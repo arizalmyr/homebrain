@@ -7,7 +7,7 @@ from typing import List
 from fastapi import HTTPException
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
 from app.core.config import chain
-from app.models.chat import ChatMessage
+from backend.app.models.schemas import ChatMessage
 
 
 def build_lc_history(history: List[ChatMessage]) -> List[BaseMessage]:
