@@ -1,6 +1,21 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from dotenv import load_dotenv
+from google import genai
+import os
 
+# Load env vars
+load_dotenv()
+
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+if not gemini_api_key:
+    raise RuntimeError("GEMINI_API_KEY is not set, Check your .env file.")
+
+# Create Gemini client & model
+geminiClient = genai.Client(api_key=gemini_api_key)
+MODEL_NAME = "gemini-2.5-flash"
+
+# Initialize FastAPI app
 app = FastAPI()
 
 
@@ -12,24 +27,38 @@ class ChatResponse(BaseModel):
     reply: str
 
 
+### Health check endpoint ###
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "service": "homebrain-backend"}
+    return {"status": "ok", 
+            "service": "homebrain-backend",
+            "llm": MODEL_NAME,
+            }
 
 
+### Chat endpoint ###
 @app.post("/api/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
     user_message = req.message.strip()
 
+    # Handle empty message
     if not user_message:
         return ChatResponse(reply="You sent an empty message.")
 
-    # For now, a very dumb "brain"
+    # Dumb response logic
     if "proxmox" in user_message.lower():
         return ChatResponse(
             reply="I can't talk to Proxmox yet, but soon I'll query your cluster status."
         )
 
-    return ChatResponse(
-        reply=f'I received: "{user_message}". Later this will go through LangChain / LangGraph.'
-    )
+    # Main LLM interaction
+    try:
+        response = geminiClient.models.generate_content(
+            model=MODEL_NAME,
+            contents=user_message,
+        )
+    
+        return ChatResponse(reply=response.text)
+    except Exception as e:
+        print(f"LLM error: {e}")
+        raise HTTPException(status_code=500, detail="LLM call failed")
