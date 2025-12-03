@@ -1,8 +1,6 @@
 """
 app/services/homebrain_brain.py
-
-Where LangChain + Gemini live. FastAPI route calls this function.
-
+ 
 """
 
 from typing import List
@@ -13,6 +11,9 @@ from app.models.chat import ChatMessage
 
 
 def build_lc_history(history: List[ChatMessage]) -> List[BaseMessage]:
+    """
+    Converts chat history into LangChain message objects.
+    """
     lc_messages: List[BaseMessage] = []
     for msg in history:
         if msg.role == "user":
@@ -22,19 +23,16 @@ def build_lc_history(history: List[ChatMessage]) -> List[BaseMessage]:
     return lc_messages
 
 
-def run_homebrain(
-    history: List[ChatMessage],
-    user_message: str,
-) -> tuple[str, List[ChatMessage]]:
+def generate_response(history: List[ChatMessage], user_message: str,) -> tuple[str, List[ChatMessage]]:
     """
-    Main brain function: takes existing history + new user message,
-    calls the LangChain+Gemini chain, returns (reply, new_history).
+    Generates a response from the LLM using the chain.
     """
+    # 1. Normalize user message
     trimmed = user_message.strip()
     if not trimmed:
         return "You sent an empty message.", history
 
-    # Proxmox easter egg example
+    # Dumb logic
     if "proxmox" in trimmed.lower():
         reply = "I can't talk to Proxmox yet, but soon I'll query your cluster status."
         new_history = history + [
@@ -43,10 +41,12 @@ def run_homebrain(
         ]
         return reply, new_history
 
+    # 2. Build LangChain Message History
     lc_history = build_lc_history(history)
 
+    # 3. Call the chain, get response
     try:
-        ai_msg = chain.invoke(
+        llm_response_raw = chain.invoke(
             {
                 "history": lc_history,
                 "input": trimmed,
@@ -56,10 +56,11 @@ def run_homebrain(
         print(f"Homebrain LLM error: {e}")
         raise HTTPException(status_code=500, detail="LLM call failed")
 
-    reply_text = getattr(ai_msg, "text", None) or str(ai_msg)
+    llm_response = getattr(llm_response_raw, "text", None) or str(llm_response_raw)
 
     new_history = history + [
         ChatMessage(role="user", content=trimmed),
-        ChatMessage(role="assistant", content=reply_text),
+        ChatMessage(role="assistant", content=llm_response),
     ]
-    return reply_text, new_history
+
+    return llm_response, new_history
