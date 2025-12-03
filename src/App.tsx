@@ -120,16 +120,27 @@ function App() {
               <div
                 key={message.id}
                 style={{
-                  alignSelf: 'flex-start',
+                  alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
                   padding: '0.5rem 0.75rem',
                   borderRadius: '0.5rem',
-                  backgroundColor: '#0b1120',
+                  backgroundColor:
+                    message.role === 'user' ? '#4b5563' : '#0b1120',
                   border: '1px solid #1f2937',
                   fontSize: '0.9rem',
+                  maxWidth: '80%',
                 }}
               >
-                {message.text}
-              </div>
+                <div
+                  style={{
+                    fontSize: '0.7rem',
+                    opacity: 0.7,
+                    marginBottom: '0.15rem',
+                  }}
+                >
+                  {message.role === 'user' ? 'You' : 'Homebrain'}
+                </div>
+              {message.text}
+            </div>
             ))
           )}
         </div>
