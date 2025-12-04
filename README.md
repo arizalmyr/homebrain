@@ -15,8 +15,8 @@ http://localhost:8001/docs
 
 ## To Do
 
-- [x] Fontend
-- [x] Backend
+- [x] React Fontend
+- [x] FastAPI Backend
 - [x] Backend response from LLM
 - [x] Frontend to backend
 ---
