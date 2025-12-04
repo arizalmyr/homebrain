@@ -25,7 +25,6 @@ http://localhost:8001/docs
 ---
 - [x] Multi-turn chat
 - [x] History Awareness (send full history with userQuery)
-- [ ] Make Backend single source of truth
 - [ ] Persistent conversations
 ---
 - [ ] Containerize frontend
