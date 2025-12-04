@@ -23,12 +23,19 @@ Starting
 ---
 LangChain
 - [x] LangChain integration
----
+
 LangGraph
 - [x] Upgrade LangGraph!
 - [x] Multi-turn chat
 - [x] History Awareness (send full history with userQuery)
-- [ ] Persistent conversations
+- [ ] Multi-nodes! Add a tool node
+- [ ] Implement Memory
+- [ ] Add RAG node
+
+Memory
+- [ ] Implement sessions using session_id's
+- [ ] Add backend store
+- [ ] Load prior history from store by session_id
 ---
 Other
 - [ ] Implement Authorizaion
