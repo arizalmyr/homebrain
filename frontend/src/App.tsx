@@ -8,45 +8,61 @@ type Message = {
 }
 
 function App() {
-  // States
+
+  // Define States
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  // Handle form submission
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault() // stop page reload
 
-    const trimmed = input.trim()
-    if (!trimmed) return // ignore empty messages
+    // 1. Clean up input, catch empty messages
+    const userInput = input.trim()
+    if (!userInput) return // ignore empty messages
 
+    // 2. Build history payload from current messages
+    const historyPayload = messages.map(msg => ({
+      role: msg.role,
+      content: msg.text,
+    }))
+
+    // 3. Create user message object for UI & Update state immediately
     const userMessage: Message = {
       id: Date.now(),
       role: 'user',
-      text: trimmed,
+      text: userInput,
     }
-
-    // Append new message to list
     setMessages(prev => [...prev, userMessage])
     setInput('')
     setIsLoading(true)
 
-    // Send message to backend
-    try{
+    // 4. Send messsage + history to backend
+    try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: trimmed }),
+        body: JSON.stringify({
+          message: userInput,
+          history: historyPayload,
+        }),
       })
 
       if (!res.ok) {
         throw new Error(`Server error! status: ${res.status}`)
       }
 
-      const data: { reply: string } = await res.json()
+      // 4.1 Define response type & wait for response data
+      type ChatResponse = {
+        reply: string
+        history: { role: 'user' | 'assistant'; content: string }[]
+      }
+      const data: ChatResponse = await res.json()
 
-      // Add LLM's response to messages
+      // 4.2 Create assistant message object & update state
       const assistantMessage: Message = {
         id: Date.now() + 1,
         role: 'assistant',
@@ -139,8 +155,8 @@ function App() {
                 >
                   {message.role === 'user' ? 'You' : 'Homebrain'}
                 </div>
-              {message.text}
-            </div>
+                {message.text}
+              </div>
             ))
           )}
           {isLoading && (
