@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from app.models.schemas import ChatRequest, ChatResponse, ChatMessage
 from app.services.chat import generate_response
 
@@ -8,7 +8,7 @@ router = APIRouter(prefix="/api", tags=["chat"])
 
 
 # Health check endpoint
-@router.get("/api/health")
+@router.get("/health")
 def health():
     return {
         "status": "ok",
@@ -18,10 +18,20 @@ def health():
 
 
 # Chat endpoint
-@router.post("/api/chat", response_model=ChatResponse)
+@router.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest) -> ChatResponse:
+    
     history = req.history or []
 
-    reply, new_history = generate_response(history, req.message)
-
-    return ChatResponse(reply=reply, history=new_history)
+    try:
+        reply, new_history = generate_response(history, req.message)
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"LLM error: {e!r}")
+    
+    return ChatResponse(
+        reply=reply, 
+        history=new_history,
+    )
+        
