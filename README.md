@@ -31,7 +31,7 @@ http://localhost:8001/docs
 - [x] History Awareness (send full history with `userQuery`)
 - [ ] Multi-nodes! Add a tool node
 - [ ] Implement Memory
-- [ ] Add RAG node
+- [ ] Add RAG Pipeline
 
 #### 💾 Memory
 - [ ] Implement sessions using `session_id`
