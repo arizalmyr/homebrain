@@ -46,6 +46,7 @@ docker compose up -d --build
 ### 🐿️ Other
 - [ ] Basic Auth
 - [ ] Rate limit / abuse protection
+- [ ] Cost tracker
 ---
 ### ☕︎ DevOps
 - [ ] Containerize frontend
