@@ -37,4 +37,4 @@ gemini_llm = ChatGoogleGenerativeAI(
 
 openai_llm = ChatOpenAI(
     model_name="gpt-5-nano",
-    }
+)

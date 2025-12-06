@@ -7,8 +7,7 @@ app/services/homebrain_brain.py
 
 """
 
-from typing import Dict, List
-from uuid import uuid4
+from typing import List, Tuple
 from fastapi import HTTPException
 from app.core.config import gemini_llm, SYSTEM_PROMPT
 from app.models.schemas import ChatMessage
@@ -18,6 +17,11 @@ from langchain_core.messages import (
     HumanMessage,
     AIMessage,
     SystemMessage,
+)
+from app.services.session_store import (
+    get_or_create_session,
+    get_history_for_session,
+    save_history_for_session,
 )
 
 ######################################
@@ -73,51 +77,73 @@ def handle_chat_turn(history: List[ChatMessage], user_message: str,) -> tuple[st
     Generates a response from the LLM using the LangGraph chat graph.
     """
     # 1. Normalize user message
-    trimmed = user_message.strip()
-    if not trimmed:
+    user_message_trim = user_message.strip()
+    if not user_message_trim:
         return "You sent an empty message.", history
 
-    # Dumb logic
-    if "proxmox" in trimmed.lower():
-        reply = (
-            "I can't talk to Proxmox yet, "
-            "but soon I'll query the cluster status."
-        )
-        new_history = history + [
-            ChatMessage(role="user", content=trimmed),
-            ChatMessage(role="assistant", content=reply),
-        ]
-        return reply, new_history
-
-    # 2. Convert history to LangChain messages, build initial state by appending new user message
+    # 2. Convert history to LangChain messages, build initial state by appending new user message to MessagesState object
     lc_history = build_lc_history(history)
 
     initial_state: MessagesState = {
         "messages": [
             *lc_history,
-            HumanMessage(content=trimmed),
+            HumanMessage(content=user_message_trim),
         ]
     }
 
-    # 3. Run LangGraph chat graph
+    # 3. Run LangGraph
     try:
         final_state = chat_graph.invoke(initial_state)
     except Exception as e:
         print(f"Homebrain LangGraph/LLM error: {e!r}")
         raise HTTPException(status_code=500, detail="LLM call failed") from e
 
-    # 4. Checks if final state is valid
+    # Checks if final state is valid
     messages: List[BaseMessage] = final_state["messages"]
     if not messages:
         raise HTTPException(status_code=500, detail="Empty LLM response")
     
-    # 5. Extract reply
+    # Extract reply
     last_msg = messages[-1]
-    reply_text = last_msg.content
+    LLM_reply = last_msg.content
 
-    new_history = history + [
-        ChatMessage(role="user", content=trimmed),
-        ChatMessage(role="assistant", content=reply_text),
-    ]
+    # new_history = history + [
+    #     ChatMessage(role="user", content=user_message_trim),
+    #     ChatMessage(role="assistant", content=LLM_reply),
+    # ]
 
-    return reply_text, new_history
+    # 6. Build latest history
+    new_history: List[ChatMessage] = []
+    for msg in messages:
+        if isinstance(msg, HumanMessage):
+            new_history.append(ChatMessage(role="user", content=msg.content))
+        elif isinstance(msg, AIMessage):
+            new_history.append(ChatMessage(role="assistant", content=msg.content))
+        else:
+            raise ValueError(f"Unknown message type: {type(msg)}")
+
+    return LLM_reply, new_history
+
+
+def handle_session_chat_turn(session_id: str | None, user_message: str) -> Tuple[str, List[ChatMessage], str]:
+    """
+    High-level entrypoint: given an optional session_id and user message,
+    load history, run one chat turn, save history, and return:
+      (LLM_reply, new_history, resolved_session_id)
+    """
+    # 1. Get or create session
+    sid = get_or_create_session(session_id)
+
+    # 2. Load history for session
+    history = get_history_for_session(sid)
+    print(f"[DEBUG] sid={sid}, incoming_history_len={len(history)}")
+
+    # 3. Run turn logic
+    LLM_reply, new_history = handle_chat_turn(history, user_message)
+    print(f"[DEBUG] sid={sid}, new_history_len={len(new_history)}")
+
+    # 4. Save updated history back to session store
+    save_history_for_session(sid, new_history)
+
+    # 5. Return everything
+    return LLM_reply, new_history, sid

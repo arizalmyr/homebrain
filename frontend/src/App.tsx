@@ -9,26 +9,19 @@ type Message = {
 
 function App() {
 
-  // Define States
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [sessionId, setSessionId] = useState<string | null>(null)
 
-  // Handle form submission
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault() // stop page reload
+    e.preventDefault()
 
-    // 1. Clean up input, catch empty messages
+    // 1. Clean up input
     const userInput = input.trim()
-    if (!userInput) return // ignore empty messages
+    if (!userInput) return
 
-    // 2. Build history payload from current messages
-    const historyPayload = messages.map(msg => ({
-      role: msg.role,
-      content: msg.text,
-    }))
-
-    // 3. Create user message object for UI & Update state immediately
+    // 2. Create user message object for UI & Update state immediately
     const userMessage: Message = {
       id: Date.now(),
       role: 'user',
@@ -38,16 +31,14 @@ function App() {
     setInput('')
     setIsLoading(true)
 
-    // 4. Send messsage + history to backend
+    // 3. Send messsage + history to backend
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userInput,
-          history: historyPayload,
+          session_id: sessionId,
         }),
       })
 
@@ -59,13 +50,15 @@ function App() {
         role: 'user' | 'assistant'
         content: string
       }
-
       type ChatResponse = {
         reply: string
         history: ChatMessage[]
+        session_id: string
       }
 
       const data: ChatResponse = await res.json()
+
+      setSessionId(data.session_id)
 
       // Normalize backend history data
       const mappedMessages: Message[] = data.history.map((m, index) => ({
@@ -73,8 +66,9 @@ function App() {
         role: m.role,
         text: m.content,
       }))
-      // Update state with new message
+
       setMessages(mappedMessages)
+
     } catch (error) {
       console.error('Error during fetch:', error)
       const errorMessage: Message = {
@@ -83,6 +77,7 @@ function App() {
         text: "HomeBrain: I hit an error talking to the backend. Check backend logs for more details.",
       }
       setMessages(prev => [...prev, errorMessage])
+      
     } finally {
       setIsLoading(false)
     }
