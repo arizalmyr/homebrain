@@ -46,6 +46,7 @@ docker compose up -d --build
 - [ ] Basic Auth
 - [ ] Rate limit / abuse protection
 - [ ] Cost tracker
+- [ ] Homelab Statuses for various services
 ---
 ### ☕︎ DevOps
 - [ ] Containerize frontend
