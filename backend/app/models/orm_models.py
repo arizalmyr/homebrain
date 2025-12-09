@@ -42,17 +42,3 @@ class MessageDB(Base):
 
     # Every MessageDB belongs to one SessionDB
     session: Mapped[SessionDB] = relationship(back_populates="messages")
-
-class UserDB(Base):
-    __tablename__ = "users"
-
-    id: Mapped[str] = mapped_column(
-        String,
-        primary_key=True,
-        default=lambda: str(uuid4()),
-    )
-    email: Mapped[str] = mapped_column(String, unique=True, index=True)
-    password_hash: Mapped[str] = mapped_column(String)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-
-    # later: sessions = relationship("SessionDB", back_populates="user")

@@ -32,15 +32,6 @@ class Settings(BaseSettings):
     gemini_api_key: str
     openai_api_key: str
 
-    # --- Auth / JWT ---
-    auth_secret_key: str
-    auth_algorithm: str = "HS256"
-    auth_access_token_expires_minutes: int = 60
-
-    @property
-    def access_token_timedelta(self) -> timedelta:
-        return timedelta(minutes=self.auth_access_token_expires_minutes)
-
 
 # Expose singleton settings object
 settings = Settings()
