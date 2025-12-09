@@ -38,9 +38,10 @@ docker compose up -d --build
 
 #### 💾 Memory
 - [x] Implement in-memory sessions using `session_id`
-- [ ] Add Postgres DB
-- [ ] Load prior history from store by `session_id`
-- [ ] Sizebar with "New Chat" and saved chats
+- [x] Add Postgres DB
+- [x] Load prior history from store by `session_id`
+- [x] Sizebar with "New Chat" and saved chats
+- [ ] 
 ---
 ### 🐿️ Other
 - [ ] Basic Auth
