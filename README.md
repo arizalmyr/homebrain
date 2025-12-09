@@ -5,7 +5,6 @@
 ```bash
 # Fontend React (port 4000)
 npm run dev
-curl http://localhost:4000
 
 # Backend python FastAPI (port 8001)
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
