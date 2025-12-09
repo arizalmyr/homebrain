@@ -1,8 +1,10 @@
 from datetime import datetime, timezone
+from uuid import uuid4
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Text, DateTime, ForeignKey, BigInteger
 
 from app.db.core import Base
+
 
 class SessionDB(Base):
     """
@@ -35,8 +37,22 @@ class MessageDB(Base):
     role: Mapped[str] = mapped_column(String, nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
 
     # Every MessageDB belongs to one SessionDB
     session: Mapped[SessionDB] = relationship(back_populates="messages")
+
+class UserDB(Base):
+    __tablename__ = "users"
+
+    id: Mapped[str] = mapped_column(
+        String,
+        primary_key=True,
+        default=lambda: str(uuid4()),
+    )
+    email: Mapped[str] = mapped_column(String, unique=True, index=True)
+    password_hash: Mapped[str] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    # later: sessions = relationship("SessionDB", back_populates="user")

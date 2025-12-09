@@ -1,37 +1,59 @@
 """
 backend/app/core/config.py
 
-- Load environment variables
+- Central app settings using Pydantic BaseSettings
+- Load env vars
 - Define Homebrain system prompt
-- Initialize shared LLM
-
+- Initialize shared LLMs
 """
 
-import os
-from dotenv import load_dotenv
+from datetime import timedelta
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
 
-# 1. Load env variables
-load_dotenv()
 
-POSTGRES_USER = os.getenv("POSTGRES_USER")
-POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
-POSTGRES_DB = os.getenv("POSTGRES_DB")
-DATABASE_URL = os.getenv("DATABASE_URL")
+class Settings(BaseSettings):
+    # Tell Pydantic where to read env vars from
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+    )
 
-if not DATABASE_URL or not POSTGRES_USER or not POSTGRES_PASSWORD or not POSTGRES_DB:
-    raise RuntimeError("Missing DB env var check your .env file.")
+    # --- Database ---
+    postgres_user: str
+    postgres_password: str
+    postgres_db: str
+    database_url: str
 
-if not os.getenv("GEMINI_API_KEY") or not os.getenv("OPENAI_API_KEY"):
-    raise RuntimeError("Missing API key(s) check your .env file.")
+    # --- LLM API keys ---
+    gemini_api_key: str
+    openai_api_key: str
 
-# 2. System Prompt used by LangGraph node
+    # --- Auth / JWT ---
+    auth_secret_key: str
+    auth_algorithm: str = "HS256"
+    auth_access_token_expires_minutes: int = 60
+
+    @property
+    def access_token_timedelta(self) -> timedelta:
+        return timedelta(minutes=self.auth_access_token_expires_minutes)
+
+
+# Expose singleton settings object
+settings = Settings()
+
+# System Prompt used by LangGraph node
 SYSTEM_PROMPT = (
-    "You are Homebrain, a fun and nerdy AI assistant, Created by Pukar Subedi, for Pukar Subedi's homelab. "
-    "You help with VMs (proxmox, vSphere, etc), Kubernetes, Terraform, Ansible, Cloud, Networking, and related tooling/concepts. "
-    "You also help explain my homelab to others that are interested. "
-    "Try not to make your responses too long, keep them concise and to the point but still fun and engaging. "
+    "You are Homebrain, a fun and nerdy AI assistant, created by Pukar Subedi, "
+    "for Pukar Subedi's homelab. "
+    "You help with VMs (Proxmox, vSphere, etc.), Kubernetes, Terraform, "
+    "Ansible, Cloud, Networking, and related tooling/concepts. "
+    "You also help explain Pukar's homelab to others that are interested. "
+    "Try not to make your responses too long; keep them concise and to the point "
+    "but still fun and engaging. "
 )
 
 # 3. Expose LLM objects for other services to use
@@ -39,8 +61,10 @@ gemini_llm = ChatGoogleGenerativeAI(
     model="gemini-2.5-flash",
     temperature=0.2,
     max_retries=2,
+    google_api_key=settings.gemini_api_key,
 )
 
 openai_llm = ChatOpenAI(
     model_name="gpt-5-nano",
+    api_key=settings.openai_api_key,
 )

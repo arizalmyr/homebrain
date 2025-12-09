@@ -47,6 +47,7 @@ docker compose up -d --build
 - [ ] Rate limit / abuse protection
 - [ ] Cost tracker
 - [ ] Homelab Statuses for various services
+- [ ] Integrate Redis!
 ---
 ### ☕︎ DevOps
 - [ ] Containerize frontend

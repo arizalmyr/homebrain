@@ -1,15 +1,19 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
-from app.core.config import DATABASE_URL
+from app.core.config import settings
 
 class Base(DeclarativeBase):
     """Base class for all ORM models."""
     pass
 
 engine = create_engine(
-    DATABASE_URL,
+    settings.database_url,
     echo=False,
     future=True,
 )
 
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+SessionLocal = sessionmaker(
+    bind=engine, 
+    autoflush=False, 
+    autocommit=False,
+)

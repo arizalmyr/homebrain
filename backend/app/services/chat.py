@@ -9,7 +9,7 @@ app/services/homebrain_brain.py
 
 from typing import List, Tuple
 from fastapi import HTTPException
-from app.core.config import gemini_llm, SYSTEM_PROMPT
+from app.core.config import settings
 from app.models.schemas import ChatMessage
 from langgraph.graph import StateGraph, START, END, MessagesState
 from langchain_core.messages import (
@@ -50,12 +50,12 @@ def generate_reply(state: MessagesState) -> dict:
     """
     # 1. Build messages with system prompt + history
     messages: List[BaseMessage] = [
-        SystemMessage(content=SYSTEM_PROMPT),
+        SystemMessage(content=settings.SYSTEM_PROMPT),
         *state["messages"],
     ]
 
     # 2. Call LLM
-    ai_reply = gemini_llm.invoke(messages)
+    ai_reply = settings.gemini_llm.invoke(messages)
 
     # 3. return messages with updated state
     return {"messages": [ai_reply]}
