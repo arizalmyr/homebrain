@@ -1,5 +1,7 @@
 # app/core/graph.py
 
+from contextlib import ExitStack
+
 from langgraph.graph import StateGraph, MessagesState
 from langgraph.checkpoint.postgres import PostgresSaver
 from langchain_core.messages import SystemMessage
@@ -32,8 +34,10 @@ builder.add_node("agent", agent_node)
 builder.set_entry_point("agent")
 builder.set_finish_point("agent")
 
-checkpointer = PostgresSaver.from_conn_string(settings.langgraph_db_url)
-checkpointer.setup()
+life_stack = ExitStack()
+checkpointer = life_stack.enter_context(
+    PostgresSaver.from_conn_string(settings.langgraph_db_url)
+)
 
-# Singleton
+checkpointer.setup()
 graph = builder.compile(checkpointer=checkpointer)
