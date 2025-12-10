@@ -1,6 +1,10 @@
+# app/api/chat.py
+
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
+
 from app.models.schemas import ChatRequest, ChatResponse
-from app.services.chat import handle_session_chat_turn
+from app.services.chat import chat_turn, chat_turn_stream
 
 
 router = APIRouter(prefix="/api", tags=["chat"])
@@ -19,15 +23,31 @@ def health():
 def chat(req: ChatRequest) -> ChatResponse:
     
     try:
-        LLM_reply, new_history, sid = handle_session_chat_turn(req.session_id, req.message)
+        ai_reply, history, thread_id = chat_turn(req.thread_id, req.message)
     except HTTPException:
         raise
     except Exception as e:
         print(f"LLM error: {e!r}")
     
     return ChatResponse(
-        reply=LLM_reply, 
-        history=new_history,
-        session_id=sid,
+        reply=ai_reply, 
+        history=history,
+        thread_id=thread_id,
     )
         
+@router.post("/chat/stream")
+def chat_stream(req: ChatRequest):
+    
+    thread_id, token_gen = chat_turn_stream(req.thread_id, req.message)
+
+    def event_stream():
+        for chunk in token_gen:
+            # SSE format; frontend can read via EventSource
+            yield f"data: {chunk}\n\n"
+        # Optional "done" marker that includes thread_id
+        yield f"data: [DONE]|{thread_id}\n\n"
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+    )
