@@ -12,12 +12,6 @@ type ChatMessage = {
   content: string
 }
 
-type ChatResponse = {
-  reply: string
-  history: ChatMessage[]
-  thread_id: string
-}
-
 type SessionSummary = {
   thread_id: string
   created_at: string
