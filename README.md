@@ -36,9 +36,15 @@ docker compose up -d --build
 - [x] Response from LLM displayed in frontend
 - [x] Send System_Prompt + full message history + new message to LLM
 ---
-### In-memory sessions
+### Memory
+
+#### In-Memory
 - [x] Frontend generates and sends a `session_id` with payload
-- [x] if exists pull history else create new `session_id` key
+- [x] if exists pull history, else create new `session_id` key
+- [x] Save all `session_id` tokens and messages to DB
+
+#### Checkpointers
+
 ---
 ### Containerize
 - [x] Seperate frontend and backend
@@ -59,12 +65,12 @@ docker compose up -d --build
     - [ ] Save in PostgresDB with `thread_id`
     - [ ] Show on frontend
 ---
-#### Tool Node
+### Tool Node
 - [ ] Create LangChain `tool`
 - [ ] Wrap with agent
 - [ ] Call agent from LangGraph Node 
 ---
-#### RAG Agent
+### RAG Agent
 - [ ] Implement Vector Database (Chunking -> Embedding -> Vector store) to ingest Documents (.md/markdown/.txt)
 - [ ] Create Retriever tool
 - [ ] Add Retriever tool to agent (Agent should decide Answer from prior context or call Retriever tool and ground answer)
