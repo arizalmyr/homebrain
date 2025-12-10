@@ -3,7 +3,7 @@ import type { FormEvent } from 'react'
 
 type Message = {
   id: number
-  role: 'user' | 'assistant' | 'system'
+  role: 'user' | 'assistant'
   text: string
 }
 
