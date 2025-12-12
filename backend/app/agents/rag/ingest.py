@@ -9,10 +9,9 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 from app.core.config import settings
 
-# Where your homelab / Homebrain docs live
-DOCS_DIR = Path(settings.rag_docs_dir)  # e.g. "data/homebrain_docs"
-VECTOR_DIR = Path(settings.rag_vector_dir)  # e.g. "data/homebrain_chroma"
 
+DOCS_DIR = Path(settings.rag_docs_dir)
+VECTOR_DIR = Path(settings.rag_vector_dir)
 
 def build_vectorstore() -> None:
     """Ingest docs -> chunk -> embed -> persist to Chroma."""
