@@ -1,4 +1,13 @@
-# app/services/ingest.py
+"""
+app/services/ingest.py
+
+Options:
+- ingestions run on deploy/CI
+- ingest docs from a directory
+- Object store / knowledge base (S3, google drive, etc.) - Use LangChain loaders
+
+
+"""
 
 from pathlib import Path
 
@@ -22,7 +31,7 @@ def build_vectorstore() -> None:
     print(f"Loading documents from {DOCS_DIR} ...")
     loader = DirectoryLoader(
         str(DOCS_DIR),
-        glob="**/*.md",          # adjust: .md, .txt, .pdf with other loaders, etc.
+        glob="**/*.md",
         loader_cls=TextLoader,
         show_progress=True,
     )

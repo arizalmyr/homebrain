@@ -20,7 +20,12 @@ services:
     ports:
       - "8001:8001"
     restart: unless-stopped
-    volumes: # for local development
+    environment:
+      - RAG_DOCS_DIR=/data/docs
+      - RAG_VECTOR_DIR=/data/chroma
+    volumes:
+      - /srv/homebrain/docs:/data/docs
+      - /srv/homebrain/chroma:/data/chroma
       - ./backend:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
     depends_on:
@@ -33,6 +38,16 @@ services:
     ports:
       - "4000:80"        # host:container (nginx listens on 80)
     restart: unless-stopped
+
+  ingest:
+    build: .
+    environment:
+      - RAG_DOCS_DIR=/data/docs
+      - RAG_VECTOR_DIR=/data/chroma
+    volumes:
+      - /srv/homebrain/docs:/data/docs:ro
+      - /srv/homebrain/chroma:/data/chroma
+    command: ["python", "-m", "app.services.ingest"]
 
 volumes:
   homebrain_db:

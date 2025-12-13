@@ -27,8 +27,8 @@ class Settings(BaseSettings):
     gemini_api_key: str
 
     # --- RAG ---
-    rag_docs_dir: str = "data/homebrain_docs"
-    rag_vector_dir: str = "data/homebrain_chroma"
+    rag_docs_dir: str
+    rag_vector_dir: str
 
 # Singleton
 settings = Settings()

@@ -14,6 +14,9 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
 
 # Full Stack Start
 docker compose up -d --build
+
+# Run ingestion job for RAG agent
+docker compose run --rm ingest
 ```
 
 ### 🗺️ Roadmap / To-Do
