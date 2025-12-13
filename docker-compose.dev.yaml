@@ -1,15 +1,11 @@
 services:
-  db:
-    image: postgres:16
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:80"
     restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
-      - homebrain_db:/var/lib/postgresql/data
 
   backend:
     build:
@@ -24,26 +20,33 @@ services:
       - RAG_DOCS_DIR=/data/docs
       - RAG_VECTOR_DIR=/data/chroma
     volumes:
-      - /srv/homebrain/docs:/data/docs
+      - /srv/homebrain/docs:/data/docs:ro
       - /srv/homebrain/chroma:/data/chroma
       - ./backend:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
     depends_on:
       - db
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "4000:80"        # host:container (nginx listens on 80)
+  db:
+    image: postgres:16
     restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - homebrain_db:/var/lib/postgresql/data
 
   ingest:
-    build: .
-    environment:
-      - RAG_DOCS_DIR=/data/docs
-      - RAG_VECTOR_DIR=/data/chroma
+    profiles: ["jobs"]
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    restart: "no"
     volumes:
       - /srv/homebrain/docs:/data/docs:ro
       - /srv/homebrain/chroma:/data/chroma
