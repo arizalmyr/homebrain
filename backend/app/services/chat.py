@@ -5,39 +5,14 @@ app/services/chat.py
 
 from typing import List, Tuple, Generator
 import uuid
+import format as fmt
 
 from fastapi import HTTPException
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
+from langchain_core.messages import BaseMessage, HumanMessage
 
 from app.core.graph import graph
 from app.models.schemas import ChatMessage
 
-######################################
-#   Helpers                          #
-######################################
-
-def to_chat_messages(messages: List[BaseMessage]) -> List[ChatMessage]:
-    """
-    Covert BaseMessage list to ChatMessage list (defining roles).
-    Else block: For now, treat any other message types (ToolMessage, etc.) as "system" so they don't break the UI.
-    """
-
-    chat_messages: List[ChatMessage] = []
-
-    for msg in messages:
-        if isinstance(msg, HumanMessage):
-            role = "user"
-        elif isinstance(msg, AIMessage):
-            role = "assistant"
-        else:
-            role = "system"
-        chat_messages.append(ChatMessage(role=role, content=msg.content))
-
-    return chat_messages
-
-
-def thread_config(thread_id: str) -> dict:
-    return {"configurable": {"thread_id": thread_id}}
 
 ######################################
 #  Core                              #
@@ -46,20 +21,18 @@ def thread_config(thread_id: str) -> dict:
 def chat_turn(thread_id: str | None, user_msg: str) -> Tuple[str, List[ChatMessage], str]:
     """
     Single non-streaming chat turn.
-
-    - Ensures a thread_id (used as LangGraph thread_id).
-    - Sends only the new user message to the graph.
-    - Lets LangGraph + Postgres checkpointer handle history and persistence.
-    - Returns (ai_reply, full_history, resolved_thread_id).
+    Returns (ai_reply, new_history, tid)
     """
 
     user_msg = user_msg.strip()
     if not user_msg:
         raise HTTPException(status_code=400, detail="Empty message is not allowed.")
 
+    # Ensure thread_id
     tid = thread_id or str(uuid.uuid4())
-    config = thread_config(tid)
+    config = fmt.thread_config(tid)
 
+    # Invoke the graph, send only new user message, config with thread_id
     try:
         final_state = graph.invoke(
             {"messages": [HumanMessage(content=user_msg)]},
@@ -69,13 +42,18 @@ def chat_turn(thread_id: str | None, user_msg: str) -> Tuple[str, List[ChatMessa
         print(f"Homebrain LangGraph/LLM error: {e!r}")
         raise HTTPException(status_code=500, detail="LLM call failed") from e
 
+    # checks final state for messages
     messages: List[BaseMessage] = final_state.get("messages", [])
     if not messages:
         raise HTTPException(status_code=500, detail="Empty LLM response")
 
-    new_history = to_chat_messages(messages)
+    # Convert to ChatMessage schema
+    new_history = fmt.to_chat_messages(messages)
 
-    ai_reply = new_history[-1].content
+    # Extract last assistant reply
+    ai_reply = fmt.get_last_assistant_reply(new_history)
+    if not ai_reply:
+        raise HTTPException(status_code=502, detail="No assistant reply found")
 
     return ai_reply, new_history, tid
 
@@ -84,20 +62,21 @@ def chat_turn_stream(thread_id: str | None, user_msg: str) -> Tuple[str, Generat
     """
     Similar to chat_turn, but returns a streaming response generator.
 
-    Returns (resolved_thread_id, token_generator), where the generator
-    yields text chunks (tokens/segments) from the agent node.
+    Returns (tid, token_generator)
     """
 
     user_msg = user_msg.strip()
     if not user_msg:
         raise HTTPException(status_code=400, detail="Empty message is not allowed.")
 
+    # Ensure thread_id
     tid = thread_id or str(uuid.uuid4())
-    config = thread_config(tid)
+    config = fmt.thread_config(tid)
 
+    # Token generator
     def token_generator() -> Generator[str, None, None]:
         try:
-            # stream_mode="messages" lets us stream message chunks from the graph.
+            # Invoke the graph in streaming mode
             for msg_chunk, metadata in graph.stream(
                 {"messages": [HumanMessage(content=user_msg)]},
                 config=config,
@@ -107,7 +86,12 @@ def chat_turn_stream(thread_id: str | None, user_msg: str) -> Tuple[str, Generat
                 if metadata.get("langgraph_node") != "agent":
                     continue
 
+                if metadata.get("langgraph_node") == "tools":
+                    print("TOOLS NODE HIT")
+
                 content = getattr(msg_chunk, "content", "")
+                if not content:
+                    continue
 
                 # Normalize content to string
                 if isinstance(content, str):
@@ -124,9 +108,11 @@ def chat_turn_stream(thread_id: str | None, user_msg: str) -> Tuple[str, Generat
 
                 if text:
                     yield text
+
         except Exception as e:
-            print(f"Homebrain streaming error: {e!r}")
-            raise HTTPException(status_code=500, detail="LLM streaming failed") from e
+            print(f"...{e!r}")
+            yield "\n[error] Streaming failed\n"
+            return
 
     return tid, token_generator()
 
