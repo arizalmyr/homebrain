@@ -2,7 +2,6 @@
 FastAPI Entry Point
 
 - Initialize FastAPI
-- Create DB tables on startup (for dev)
 - Registers API routers
 """
 
@@ -29,7 +28,6 @@ async def lifespan(app: FastAPI):
     # Shutdown code: (add any cleanup here if needed)
 
 
-# Initialize FastAPI
 app = FastAPI(
     title="Homebrain Backend",
     docs_url="/api/docs",

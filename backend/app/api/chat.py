@@ -1,4 +1,8 @@
-# app/api/chat.py
+"""
+app/api/chat.py
+
+Frontend hits these endpionts to interact with Homebrain backend.
+"""
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
@@ -34,7 +38,7 @@ def chat(req: ChatRequest) -> ChatResponse:
         history=history,
         thread_id=thread_id,
     )
-        
+
 @router.post("/chat/stream")
 def chat_stream(req: ChatRequest):
     

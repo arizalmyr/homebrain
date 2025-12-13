@@ -1,9 +1,6 @@
 """
 app/services/chat.py
 
-- Uses LangGraph (checkpointer + postgres) to handle short- and long-term memory.
-- Exposes chat_turn and chat_turn_stream for FastAPI routes to call.
-
 """
 
 from typing import List, Tuple, Generator
