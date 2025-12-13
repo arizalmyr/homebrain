@@ -1,4 +1,5 @@
 services:
+
   frontend:
     build:
       context: ./frontend
@@ -6,6 +7,62 @@ services:
     ports:
       - "4000:80"
     restart: unless-stopped
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - homebrain_db:/var/lib/postgresql/data
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - /srv/ollama:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+      - OLLAMA_KEEP_ALIVE=1h
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  ollama-init:
+    image: curlimages/curl:8.6.0
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      set -e
+      echo "Waiting for Ollama API..."
+      until curl -fsS http://ollama:11434/api/tags >/dev/null; do sleep 1; done
+
+      echo "Checking for embedding model..."
+      if curl -fsS http://ollama:11434/api/tags | grep -q '"name":"snowflake-arctic-embed:s"'; then
+        echo "Model already present."
+        exit 0
+      fi
+
+      echo "Pulling snowflake-arctic-embed:s ..."
+      curl -fsS http://ollama:11434/api/pull -d '{"model":"snowflake-arctic-embed:s","stream":false}'
+    restart: "no"
 
   backend:
     depends_on:
@@ -29,53 +86,6 @@ services:
       - /srv/homebrain/chroma:/data/chroma
       - ./backend:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
-
-  db:
-    image: postgres:16
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - homebrain_db:/var/lib/postgresql/data
-
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - /srv/ollama:/root/.ollama
-    restart: unless-stopped
-    environment:
-      - OLLAMA_KEEP_ALIVE=1h
-    healthcheck:
-      test: ["CMD-SHELL", "ollama list || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-      start_period: 120s
-
-  ollama-init:
-    image: ollama/ollama:latest
-    depends_on:
-      ollama:
-        condition: service_healthy
-    environment:
-      - OLLAMA_HOST=http://ollama:11434
-    entrypoint: ["/bin/sh", "-lc"]
-    command: >
-      ollama list | grep -q "snowflake-arctic-embed:s"
-      || ollama pull snowflake-arctic-embed:s
-    restart: "no"
 
   ingest:
     profiles: ["jobs"]

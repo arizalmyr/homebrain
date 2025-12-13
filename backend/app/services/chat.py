@@ -5,11 +5,11 @@ app/services/chat.py
 
 from typing import List, Tuple, Generator
 import uuid
-import format as fmt
 
 from fastapi import HTTPException
 from langchain_core.messages import BaseMessage, HumanMessage
 
+from backend.app.services import formatting as fmt
 from app.core.graph import graph
 from app.models.schemas import ChatMessage
 
