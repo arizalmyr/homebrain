@@ -8,13 +8,8 @@ from app.agents.rag.nodes import rag_node
 from backend.app.agents.rag.tools.tools import RAG_TOOLS
 
 
-def build_rag_agent_graph(checkpointer=None):
-    """
-    Agentic RAG graph:
-    - agent (LLM w/ tools)
-    - tools (ToolNode executes requested tools)
-    - loop until the LLM responds without tool_calls
-    """
+def build_rag_agent_subgraph(checkpointer=None):
+
     builder = StateGraph(RAGState)
 
     builder.add_node("agent", rag_node)
