@@ -1,9 +1,7 @@
 """
 app/agents/rag/tools.py
 
-Exports:
-- 'search_rag_docs': A tool to search the RAG vectorstore for relevant documents.
-- 'RAG_TOOLS': registry of tools
+RAG agent tools.
 """
 
 from typing import List
@@ -35,4 +33,5 @@ def search_rag_docs(query: str) -> str:
     return "\n\n---\n\n".join(chunks)
 
 
-RAG_TOOLS = [search_rag_docs]
+def get_tools() -> list:
+    return [search_rag_docs]

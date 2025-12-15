@@ -8,10 +8,10 @@ from langchain_core.messages import SystemMessage
 from langchain_core.runnables import RunnableConfig
 
 from app.config import SYSTEM_PROMPT, gemini_llm
-from backend.app.agents.rag.tools.tools import RAG_TOOLS
+from app.agents.rag.tools import get_tools
 from app.agents.rag.state import RAGState
 
-model_with_tools = gemini_llm.bind_tools(RAG_TOOLS)
+model_with_tools = gemini_llm.bind_tools(get_tools())
 
 def rag_node(state: RAGState, config: RunnableConfig):
     """
